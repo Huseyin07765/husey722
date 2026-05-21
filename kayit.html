@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kayıt / Giriş</title>
+
+  <style>
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+      font-family:Arial;
+    }
+
+    body{
+      height:100vh;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      background:#f1f5f9;
+    }
+
+    .card{
+      width:350px;
+      background:white;
+      padding:30px;
+      border-radius:15px;
+      box-shadow:0 0 15px rgba(0,0,0,0.1);
+    }
+
+    h2{
+      text-align:center;
+      margin-bottom:20px;
+    }
+
+    input{
+      width:100%;
+      padding:12px;
+      margin-bottom:15px;
+      border:1px solid #ccc;
+      border-radius:10px;
+      outline:none;
+    }
+
+    button{
+      width:100%;
+      padding:12px;
+      border:none;
+      border-radius:10px;
+      background:#2563eb;
+      color:white;
+      cursor:pointer;
+      font-size:16px;
+    }
+
+    button:hover{
+      background:#1d4ed8;
+    }
+
+    .switch{
+      text-align:center;
+      margin-top:15px;
+      cursor:pointer;
+      color:#2563eb;
+    }
+
+    .user{
+      text-align:center;
+    }
+
+    img{
+      width:80px;
+      border-radius:50%;
+      margin-bottom:10px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+
+  <div id="authBox">
+
+    <h2 id="title">Kayıt Ol</h2>
+
+    <input type="email" id="email" placeholder="Mail adresi">
+
+    <input type="password" id="password" placeholder="Şifre">
+
+    <button id="submitBtn">Kayıt Ol</button>
+
+    <div class="switch" id="switchMode">
+      Hesabın var mı? Giriş Yap
+    </div>
+
+  </div>
+
+  <div class="user" id="userBox" style="display:none;">
+    <h2>Hoşgeldin</h2>
+
+    <p id="userMail"></p>
+
+    <br>
+
+    <button id="logoutBtn">Çıkış Yap</button>
+  </div>
+
+</div>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+
+// FIREBASE CONFIG
+const firebaseConfig = {
+    apiKey: "AIzaSyDWyOQp2Q5B3oNlL_JHez9oLxVc_fAAxSM",
+  authDomain: "odev-48d68.firebaseapp.com",
+  projectId: "odev-48d68",
+  storageBucket: "odev-48d68.firebasestorage.app",
+  messagingSenderId: "521625445702",
+  appId: "1:521625445702:web:5ec7ddab50218653b17147",
+};
+
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+let loginMode = false;
+
+const title = document.getElementById("title");
+const email = document.getElementById("email");
+const password = document.getElementById("password");
+const submitBtn = document.getElementById("submitBtn");
+const switchMode = document.getElementById("switchMode");
+
+const authBox = document.getElementById("authBox");
+const userBox = document.getElementById("userBox");
+const userMail = document.getElementById("userMail");
+const logoutBtn = document.getElementById("logoutBtn");
+
+
+// MOD DEĞİŞTİR
+switchMode.onclick = () => {
+
+  loginMode = !loginMode;
+
+  if(loginMode){
+
+    title.innerText = "Giriş Yap";
+    submitBtn.innerText = "Giriş Yap";
+    switchMode.innerText = "Hesabın yok mu? Kayıt Ol";
+
+  }else{
+
+    title.innerText = "Kayıt Ol";
+    submitBtn.innerText = "Kayıt Ol";
+    switchMode.innerText = "Hesabın var mı? Giriş Yap";
+  }
+};
+
+
+// KAYIT / GİRİŞ
+submitBtn.onclick = async () => {
+
+  const mail = email.value;
+  const pass = password.value;
+
+  if(!mail || !pass){
+    alert("Boş bırakma");
+    return;
+  }
+
+  try{
+
+    if(loginMode){
+
+      await signInWithEmailAndPassword(auth, mail, pass);
+      alert("Giriş başarılı");
+
+    }else{
+
+      await createUserWithEmailAndPassword(auth, mail, pass);
+      alert("Kayıt başarılı");
+    }
+
+  }catch(err){
+    alert(err.message);
+  }
+};
+
+
+// ÇIKIŞ
+logoutBtn.onclick = () => {
+  signOut(auth);
+};
+
+
+// OTURUM KONTROL
+onAuthStateChanged(auth, (user) => {
+
+  if(user){
+
+    authBox.style.display = "none";
+    userBox.style.display = "block";
+
+    userMail.innerText = user.email;
+
+  }else{
+
+    authBox.style.display = "block";
+    userBox.style.display = "none";
+  }
+
+});
+
+</script>
+
+</body>
+</html>
